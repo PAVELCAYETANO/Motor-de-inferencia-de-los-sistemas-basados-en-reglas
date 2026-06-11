@@ -2,4 +2,5 @@
 .vscode/
 bin/
 *.png
+!img/*.png
 *.dot
