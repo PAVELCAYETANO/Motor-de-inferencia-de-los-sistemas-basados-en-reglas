@@ -1,0 +1,3 @@
+tanque_vacio=si
+llave_gira=si
+bujias_sucias=si

@@ -1,0 +1,10 @@
+R1: motor_no_arranca=si Y llave_gira=si ENTONCES llamar_mecanico=si
+R2: problema_electrico=si ENTONCES motor_no_arranca=si
+R3: falta_combustible=si ENTONCES motor_no_arranca=si
+R4: bateria_baja=si Y luces_tenues=si ENTONCES problema_electrico=si
+R5: alternador_roto=si ENTONCES bateria_baja=si
+R6: correa_suelta=si ENTONCES alternador_roto=si
+R7: tanque_vacio=si ENTONCES falta_combustible=si
+R8: bujias_sucias=si ENTONCES combustion_deficiente=si
+R9: combustion_deficiente=si ENTONCES humo_negro=si
+R10: humo_negro=si Y llamar_mecanico=si ENTONCES reparacion_urgente=si
