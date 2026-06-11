@@ -1,16 +1,19 @@
 package motor;
 
 import java.util.ArrayList;
+
 import modelos.Condicion;
 import modelos.Hecho;
 import modelos.Regla;
 
 public class MotorAdelante {
 
+    //Antes de ejecutar el ciclo While, inicializamos las siguientes variables
+    //baseReglas: Contiene las 10 reglas (R1 a R10)
+    //baseHechos (Entrada): [correa_suelta=si, luces_tenues=si, llave_gira=si]
+    //memoriaTrabajo: Es un clon de la base de hechos inicial y se usa como nuestra Memoria de Trabajo
     public void ejecutar(ArrayList<Hecho> baseHechos, ArrayList<Regla> baseReglas) {
-        // Clonamos la base de hechos inicial para usarla como nuestra Memoria de Trabajo
         ArrayList<Hecho> memoriaTrabajo = new ArrayList<>(baseHechos);
-
         ArrayList<String> reglasDisparadas = new ArrayList<>();
         ArrayList<String> ordenEvaluacion = new ArrayList<>();
         ArrayList<Hecho> hechosAgregados = new ArrayList<>();
@@ -22,27 +25,29 @@ public class MotorAdelante {
         System.out.println(" INICIO ENCADENAMIENTO HACIA ADELANTE ");
         System.out.println("=========================================");
 
-        // El motor gira mientras siga descubriendo nuevos hechos
+        // Paramos hasta que el motor deje de descubrir nuevos hechos osea cuando huboCambios sea false
         while (huboCambios) {
             huboCambios = false;
             System.out.println("\n--- Iteracion " + iteracion + " ---");
 
             for (Regla regla : baseReglas) {
-                // Si la regla ya se disparo en una iteracion anterior, la ignoramos
+                // Ignoramos reglas ya disparadas anteriormente
                 if (reglasDisparadas.contains(regla.getId())) {
                     continue;
                 }
 
-                ordenEvaluacion.add(regla.getId()); // Registramos que la estamos evaluando
+                // Anotamos que la estamos evaluando
+                ordenEvaluacion.add(regla.getId());
                 System.out.println("Evaluando " + regla.getId() + ": " + regla.toString());
 
                 boolean seCumple = true;
 
                 // Evaluamos cada antecedente
                 for (Condicion condicion : regla.getAntecedentes()) {
+                    //Si el antecedente no se encuentra en la base de hechos, no tiene caso checar las demas
                     if (!evaluarCondicion(condicion, memoriaTrabajo)) {
                         seCumple = false;
-                        break; // Si falla una condicion, no tiene caso checar las demas
+                        break;
                     }
                 }
 
@@ -55,7 +60,7 @@ public class MotorAdelante {
                     memoriaTrabajo.add(nuevoHecho);
                     hechosAgregados.add(nuevoHecho);
                     reglasDisparadas.add(regla.getId());
-                    huboCambios = true; // Forzamos una nueva iteracion del ciclo while
+                    huboCambios = true; // Vamos por una nueva iteracion
                 }
             }
             iteracion++;
@@ -64,7 +69,7 @@ public class MotorAdelante {
         imprimirReporteFinal(reglasDisparadas, ordenEvaluacion, hechosAgregados);
     }
 
-    // Metodo que busca linealmente en la lista de hechos (Cumpliendo la regla de NO Hash)
+    // Buscamos en la lista de hechos
     private boolean evaluarCondicion(Condicion cond, ArrayList<Hecho> memoria) {
         for (Hecho hecho : memoria) {
             // Buscamos si la variable existe en nuestra memoria
@@ -72,14 +77,14 @@ public class MotorAdelante {
 
                 String op = cond.getOperador();
 
-                // Si es una asignacion directa (ej. llave_gira=si)
+                // Si es una asignacion directa (ejemplo: llave_gira=si)
                 if (op.equals("=")) {
                     return hecho.getValor().equals(cond.getValorObjetivo());
-                } // Si es un operador relacional (ej. temperatura>36)
+                } // Si se llegaran a ocupar operadores relacionales en otro ejemplo. 
                 else {
                     try {
-                        double valorMemoria = Double.parseDouble(hecho.getValor());
-                        double valorObjetivo = Double.parseDouble(cond.getValorObjetivo());
+                        double valorMemoria = Double.parseDouble(hecho.getValor()); //Conviertimos el String a número
+                        double valorObjetivo = Double.parseDouble(cond.getValorObjetivo()); // lo mismo con la condicion
 
                         if (op.equals(">")) {
                             return valorMemoria > valorObjetivo;
@@ -105,7 +110,7 @@ public class MotorAdelante {
         return false;
     }
 
-    // Cumple con la especificacion de mostrar los listados finales
+    // Metodo que muestra los resultados finales
     private void imprimirReporteFinal(ArrayList<String> reglasDisparadas,
             ArrayList<String> ordenEvaluacion,
             ArrayList<Hecho> hechosAgregados) {
@@ -115,7 +120,7 @@ public class MotorAdelante {
         System.out.println("\n1. Orden en que se evaluaron las reglas:");
         System.out.println(String.join(", ", ordenEvaluacion));
 
-        System.out.println("\n2. Listado de reglas disparadas (en orden):");
+        System.out.println("\n2. Listado de reglas disparadas en orden:");
         System.out.println(reglasDisparadas.isEmpty() ? "Ninguna regla fue disparada." : String.join(", ", reglasDisparadas));
 
         System.out.println("\n3. Hechos agregados a la base de conocimientos:");

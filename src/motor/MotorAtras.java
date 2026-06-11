@@ -13,8 +13,9 @@ public class MotorAtras {
 
     private ArrayList<Hecho> memoriaTrabajo;
     private ArrayList<Regla> baseReglas;
-    private ArrayList<String> dotLineas; // Para almacenar las lineas del archivo DOT
+    private ArrayList<String> dotLineas; // Para almacenar las lineas del archivo .dot
 
+    //Metodo orquestador que inicia el encadenamiento hacia atras
     public void ejecutar(ArrayList<Hecho> baseHechos, ArrayList<Regla> baseReglas, Hecho objetivo) {
         // Clonamos la base inicial para no afectar la original y la usamos como memoria
         this.memoriaTrabajo = new ArrayList<>(baseHechos);
@@ -26,11 +27,10 @@ public class MotorAtras {
         System.out.println("=========================================\n");
         System.out.println("Objetivo (Meta Principal): Demostrar " + objetivo.toString() + "\n");
 
-        // Lista para evitar ciclos infinitos
+        // Lista para evitar algun ciclo infinito
         ArrayList<String> visitados = new ArrayList<>();
 
-        // ¡Aqui arranca la recursividad!
-        // Pasamos una cadena vacia "" como indentacion inicial
+        // Una cadena vacia para la indentacion inicial
         boolean exito = evaluarMeta(objetivo, visitados, "");
 
         System.out.println("\n=========================================");
@@ -41,15 +41,14 @@ public class MotorAtras {
         }
         System.out.println("=========================================\n");
 
-        // Generamos el archivo grafico de forma dinamica para que funcione en cualquier computadora
+        // Generamos el archivo grafico
         try {
-            // Obtenemos la ruta real de donde se esta ejecutando esta clase (usualmente la carpeta 'bin' o 'src')
+            // Obtenemos la ruta real de donde se esta ejecutando esta clase
             String rutaClase = MotorAtras.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-            // Subimos un nivel para llegar a la raiz del proyecto (salimos de 'bin' o 'src')
+            // Subimos un nivel para llegar a la raiz del proyecto
             java.io.File directorioRaiz = new java.io.File(rutaClase).getParentFile();
-            // Construimos la ruta final hacia src/diagrama/
+            // Construimos la ruta final hacia src/diagrama
             java.io.File archivoDestino = new java.io.File(directorioRaiz, "diagrama/arbol_resultados.dot");
-
             generarArchivoDOT(archivoDestino.getAbsolutePath(), objetivo);
         } catch (Exception e) {
             // Si algo falla, lo guarda en la carpeta por defecto
@@ -57,11 +56,9 @@ public class MotorAtras {
         }
     }
 
-    // --- LA FUNCION RECURSIVA CENTRAL ---
-    // NOTA: Se agrego el parametro 'indentacion' puramente para formato visual en consola
+    // METODO RECURSIVO, la indentacion es solo para el formato visual en la consola
     private boolean evaluarMeta(Hecho metaActual, ArrayList<String> visitados, String indentacion) {
         String idMeta = metaActual.toString();
-
         System.out.println(indentacion + "Resolviendo Meta/Sub-meta (" + idMeta + "):");
 
         // 1. Caso Base: Prevencion de ciclos infinitos
@@ -74,7 +71,7 @@ public class MotorAtras {
         if (existeHechoEnMemoria(metaActual)) {
             System.out.println(indentacion + " -> Revisamos los hechos: " + idMeta + " es un hecho");
 
-            // Agregamos un nodo verde al diagrama
+            // Agregamos un nodo verde al diagrama para indicar que es un hecho comprobado
             String nodoHecho = "    \"" + idMeta + "\" [shape=box, style=filled, color=lightgreen];";
             if (!dotLineas.contains(nodoHecho)) {
                 dotLineas.add(nodoHecho);
@@ -82,7 +79,7 @@ public class MotorAtras {
             return true;
         }
 
-        // Marcamos la meta actual como visitada para esta rama
+        // Marcamos la meta actual como visitada para evitar ciclos
         ArrayList<String> nuevosVisitados = new ArrayList<>(visitados);
         nuevosVisitados.add(idMeta);
 
@@ -93,7 +90,7 @@ public class MotorAtras {
             if (regla.getConsecuente().esIgualA(metaActual)) {
                 encontroAlgunaRegla = true;
 
-                // Formateamos las sub-metas para imprimirlas de forma natural
+                // Formateamos las sub-metas para imprimirlas en la consola
                 ArrayList<String> nombresSubMetas = new ArrayList<>();
                 for (Condicion c : regla.getAntecedentes()) {
                     nombresSubMetas.add(c.getVariable() + c.getOperador() + c.getValorObjetivo());
@@ -110,8 +107,8 @@ public class MotorAtras {
                     Hecho subMeta = new Hecho(cond.getVariable(), cond.getValorObjetivo());
                     String idSubMeta = subMeta.toString();
 
-                    // !! LA LLAMADA RECURSIVA !!
-                    // Le sumamos 4 espacios a la indentacion para que visualmente baje un nivel
+                    // OCURRE LA LLAMADA RECURSIVA
+                    // Se agregan 4 espacios a la indentacion para que visualmente se baje un nivel
                     boolean subMetaAlcanzada = evaluarMeta(subMeta, nuevosVisitados, indentacion + "    ");
 
                     if (subMetaAlcanzada) {
@@ -120,7 +117,7 @@ public class MotorAtras {
                     } else {
                         System.out.println(indentacion + "    -> Intento por " + regla.getId() + " fracasa (fallo " + idSubMeta + "). Ocurre el Backtracking.");
                         todosAntecedentesProbados = false;
-                        break; // Backtracking: Este camino no sirve
+                        break; // Backtracking porque este camino no sirvio
                     }
                 }
 
@@ -144,7 +141,7 @@ public class MotorAtras {
         return false;
     }
 
-    // Metodo que cumple con la prohibicion de uso de Hash (busqueda lineal)
+    // Metodo para verificar si un hecho ya existe en la memoria
     private boolean existeHechoEnMemoria(Hecho meta) {
         for (Hecho h : memoriaTrabajo) {
             if (h.esIgualA(meta)) {
@@ -154,7 +151,7 @@ public class MotorAtras {
         return false;
     }
 
-    // Metodo para crear el archivo que copiaras en el editor online
+    // Metodo para crear el archivo .dot
     private void generarArchivoDOT(String rutaArchivo, Hecho objetivoPrincipal) {
         File archivo = new File(rutaArchivo);
         // Crea la carpeta "src/diagrama" si no existe
@@ -166,7 +163,7 @@ public class MotorAtras {
             fw.write("    edge [fontname=\"Helvetica,Arial,sans-serif\"];\n");
             fw.write("    rankdir=TB; // Dibuja de arriba hacia abajo\n\n");
 
-            // Coloreamos el nodo principal de azul para que resalte
+            // Coloreamos el nodo principal de azul
             fw.write("    \"" + objetivoPrincipal.toString() + "\" [shape=ellipse, style=filled, color=lightblue];\n\n");
 
             // Quitamos lineas duplicadas

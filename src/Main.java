@@ -30,7 +30,7 @@ public class Main {
             String opcion = scanner.nextLine().trim();
 
             // Leemos los archivos de nuevo en cada ciclo para garantizar 
-            // que la memoria de trabajo este limpia (reset) entre cada ejecucion.
+            // que la memoria de trabajo este limpia entre cada ejecucion.
             ArrayList<Hecho> hechosLimpios = LectorArchivos.leerHechos(rutaHechos);
             ArrayList<Regla> reglasLimpias = LectorArchivos.leerReglas(rutaReglas);
 
@@ -44,7 +44,7 @@ public class Main {
                     MotorAdelante motorAdelante = new MotorAdelante();
                     motorAdelante.ejecutar(hechosLimpios, reglasLimpias);
 
-                    System.out.println("\nPresiona ENTER para volver al menu...");
+                    System.out.println("\nPresiona ENTER para volver al menu.");
                     scanner.nextLine();
                     break;
 
@@ -59,7 +59,7 @@ public class Main {
                         System.out.println(" -> Usando objetivo por defecto: reparacion_urgente=si");
                         objetivo = new Hecho("reparacion_urgente", "si");
                     } else {
-                        System.out.print("Ingresa el valor esperado (ej. si, no, 38): ");
+                        System.out.print("Ingresa el valor esperado (ejemplo: si, no, 38): ");
                         String valor = scanner.nextLine().trim();
                         objetivo = new Hecho(variable, valor);
                     }
@@ -67,7 +67,7 @@ public class Main {
                     MotorAtras motorAtras = new MotorAtras();
                     motorAtras.ejecutar(hechosLimpios, reglasLimpias, objetivo);
 
-                    System.out.println("\nPresiona ENTER para volver al menu...");
+                    System.out.println("\nPresiona ENTER para volver al menu.");
                     scanner.nextLine();
                     break;
 
