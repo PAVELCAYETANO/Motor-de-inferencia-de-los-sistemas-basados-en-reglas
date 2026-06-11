@@ -1,3 +1,4 @@
 tanque_vacio=si
 llave_gira=si
 bujias_sucias=si
+motor_no_arranca=si
